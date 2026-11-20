@@ -1,37 +1,83 @@
 Tac.l
 %{
 #include "y.tab.h"
-#include<string.h>
+#include <string.h>
 %}
 %option noyywrap
 %%
-[a-zA-Z][a-zA-Z0-9]* {strcpy(yylval.s,yytext); return ID;}
-[0-9]+              {strcpy(yylval.s,yytext); return ID;}
-[ \t\n]+            ;
-.                   {return yytext[0];}
+[a-zA-Z][a-zA-Z0-9]*  { strcpy(yylval.s, yytext); return ID; }
+[0-9]+                { strcpy(yylval.s, yytext); return ID; }
+[ \t]+                ;
+\n                    { return '\n'; }
+.                     { return yytext[0]; }
 %%
-Tac.y
+tac.y
+
 %{
-#include<stdio.h>
-#include<string.h>
+#include <stdio.h>
+#include <string.h>
 int yylex();
-int n=1;
-void yyerror(char *s){printf("Invalid expression\n");}
+int n = 1;
+void yyerror(char *s)
+{
+    printf("Invalid expression\n");
+}
 %}
-%union {char s[20];}
+%union {
+    char s[20];
+}
 %token <s> ID
 %type <s> E
 %left '+' '-'
 %left '*' '/'
 %%
-S: ID '=' E {printf("%s = %s\n",1,3);};
-E: ID {strcpy($,1);}
- | E '+' E {sprintf($$,"t%d",n);printf("%s = %s + %s\n",$$,1,3);n++;}
- | E '-' E {sprintf($$,"t%d",n);printf("%s = %s - %s\n",$$,1,3);n++;}
- | E '*' E {sprintf($$,"t%d",n);printf("%s = %s * %s\n",$$,1,3);n++;}
- | E '/' E {sprintf($$,"t%d",n);printf("%s = %s / %s\n",$$,1,3);n++;}
- | '(' E ')' {strcpy($,2);}
- ;
+
+S : ID '=' E '\n'
+    {
+        printf("%s = %s\n", $1, $3);
+    }
+    ;
+
+E : ID
+    {
+        strcpy($$, $1);
+    }
+  | E '+' E
+    {
+        sprintf($$, "t%d", n);
+        printf("%s = %s + %s\n", $$, $1, $3);
+        n++;
+    }
+  | E '-' E
+    {
+        sprintf($$, "t%d", n);
+        printf("%s = %s - %s\n", $$, $1, $3);
+        n++;
+    }
+  | E '*' E
+    {
+        sprintf($$, "t%d", n);
+        printf("%s = %s * %s\n", $$, $1, $3);
+        n++;
+    }
+  | E '/' E
+    {
+        sprintf($$, "t%d", n);
+        printf("%s = %s / %s\n", $$, $1, $3);
+        n++;
+    }
+  | '(' E ')'
+    {
+        strcpy($$, $2);
+    }
+  ;
 %%
-int main(){printf("Enter assignment: ");yyparse();}
+int main()
+{
+    printf("Enter assignment: ");
+    yyparse();
+    return 0;
+}
+
+
 
