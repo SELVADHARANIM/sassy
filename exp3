@@ -1,25 +1,19 @@
 calc.y
 %{
 #include <stdio.h>
-
 int yylex(void);
 int yyerror(char *s);
 %}
-
 %token NUMBER
-
 %left '+' '-'
 %left '*' '/'
-
 %%
-
 input:
     expression '\n'
     {
         printf("Result = %d\n", $1);
     }
     ;
-
 expression:
       NUMBER
       {
@@ -48,21 +42,17 @@ expression:
     ;
 
 %%
-
 int main()
 {
     printf("Enter an expression: ");
     yyparse();
     return 0;
 }
-
 int yyerror(char *s)
 {
     printf("Invalid expression\n");
     return 0;
 }
-
-
 
 calc.l
 %{
