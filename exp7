@@ -1,0 +1,134 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+struct instruction {
+    char result[50];
+    char op1[50];
+    char op2[50];
+    char operator;
+    int type;
+};
+
+struct instruction code[100];
+char symbols[100][50];
+int n = 0, count = 0;
+
+int is_number(char str[]) {
+    char *end;
+    strtol(str, &end, 10);
+    return str[0] != '\0' && *end == '\0';
+}
+
+void add_symbol(char name[]) {
+    int i;
+
+    if (is_number(name))
+        return;
+
+    for (i = 0; i < count; i++) {
+        if (strcmp(symbols[i], name) == 0)
+            return;
+    }
+
+    if (count < 100)
+        strcpy(symbols[count++], name);
+}
+
+int main() {
+    char line[200];
+    int i;
+
+    printf("Enter Three Address Code (Ctrl+D to finish):\n");
+
+    while (fgets(line, sizeof(line), stdin) != NULL) {
+        struct instruction temp;
+
+        if (n >= 100) {
+            printf("Maximum number of instructions reached.\n");
+            break;
+        }
+
+        if (sscanf(line, " %49s = %49s %c %49s",
+                   temp.result, temp.op1,
+                   &temp.operator, temp.op2) == 4) {
+            temp.type = 2;
+        }
+        else if (sscanf(line, " %49s = %49s",
+                        temp.result, temp.op1) == 2) {
+            temp.type = 1;
+        }
+        else {
+            printf("Invalid TAC statement: %s", line);
+            continue;
+        }
+
+        code[n++] = temp;
+
+        add_symbol(temp.result);
+        add_symbol(temp.op1);
+
+        if (temp.type == 2)
+            add_symbol(temp.op2);
+    }
+
+    printf("\n.MODEL SMALL\n");
+    printf(".STACK 100H\n");
+    printf(".DATA\n");
+
+    for (i = 0; i < count; i++)
+        printf("%s DW ?\n", symbols[i]);
+
+    printf("\n.CODE\n");
+    printf("MAIN PROC\n");
+    printf("MOV AX, @DATA\n");
+    printf("MOV DS, AX\n\n");
+
+    for (i = 0; i < n; i++) {
+        if (code[i].type == 1) {
+            printf("MOV AX, %s\n", code[i].op1);
+            printf("MOV %s, AX\n\n", code[i].result);
+        }
+        else {
+            switch (code[i].operator) {
+                case '+':
+                    printf("MOV AX, %s\n", code[i].op1);
+                    printf("ADD AX, %s\n", code[i].op2);
+                    printf("MOV %s, AX\n\n", code[i].result);
+                    break;
+
+                case '-':
+                    printf("MOV AX, %s\n", code[i].op1);
+                    printf("SUB AX, %s\n", code[i].op2);
+                    printf("MOV %s, AX\n\n", code[i].result);
+                    break;
+
+                case '*':
+                    printf("MOV AX, %s\n", code[i].op1);
+                    printf("MOV BX, %s\n", code[i].op2);
+                    printf("MUL BX\n");
+                    printf("MOV %s, AX\n\n", code[i].result);
+                    break;
+
+                case '/':
+                    printf("MOV AX, %s\n", code[i].op1);
+                    printf("XOR DX, DX\n");
+                    printf("MOV BX, %s\n", code[i].op2);
+                    printf("DIV BX\n");
+                    printf("MOV %s, AX\n\n", code[i].result);
+                    break;
+
+                default:
+                    printf("; Unsupported operator\n\n");
+            }
+        }
+    }
+
+    printf("MOV AH, 4CH\n");
+    printf("INT 21H\n");
+    printf("MAIN ENDP\n");
+    printf("END MAIN\n");
+
+    return 0;
+}
+
