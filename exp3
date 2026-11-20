@@ -78,31 +78,3 @@ calc.l
 \n          { return '\n'; }
 .           { return yytext[0]; }
 %%
-
-
-Exp 4
-Tac.l
-
-%{
-#include "y.tab.h"
-#include <string.h>
-%}
-
-%option noyywrap
-
-%%
-[a-zA-Z][a-zA-Z0-9]* {
-    strcpy(yylval.str, yytext);
-    return ID;
-}
-
-[0-9]+ {
-    strcpy(yylval.str, yytext);
-    return ID;
-}
-
-[ \t]+  ;
-\n      { return '\n'; }
-.       { return yytext[0]; }
-%%
-
