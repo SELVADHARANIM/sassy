@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+ 
+int main() {
+    char s[200], t[50];
+    char *kw[] = {"int", "float", "char", "if", "else",
+              	"for", "while", "return", "void", "double"};
+    int i = 0, j, k;
+ 
+    printf("Enter a C statement: ");
+    fgets(s, sizeof(s), stdin);
+ 
+    while (s[i]) {
+        if (isspace(s[i])) { i++; continue; }
+ 
+        if (isalnum(s[i]) || s[i] == '_') {
+        	j = 0;
+        	while (isalnum(s[i]) || s[i] == '_')
+            	t[j++] = s[i++];
+        	t[j] = '\0';
+ 
+        	if (isdigit(t[0]))
+            	printf("%s : Number\n", t);
+        	else {
+            	for (k = 0; k < 10 && strcmp(t, kw[k]); k++);
+            	printf("%s : %s\n", t,
+                   	k < 10 ? "Keyword" : "Identifier");
+        	}
+        }
+        else if (strchr("+-*/%=<>!", s[i]))
+        	printf("%c : Operator\n", s[i++]);
+        else
+        	printf("%c : Symbol\n", s[i++]);
+    }
+    return 0;
+}
