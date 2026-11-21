@@ -1,14 +1,61 @@
+
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+
 int main()
 {
-    int a, b;
-    printf("Enter two numbers: ");
-    scanf("%d %d", &a, &b);
-    printf("\nConstant Folding: %d\n\n", a + b);
-    printf("Strength Reduction: %d + %d\n\n", a, a);
-    printf("Algebraic Transformation:\n");
-    printf("Addition(a+0): %d\n", a);
-    printf("Multiplication(a*1): %d\n", a);
-    printf("Zero Multiplication(a*0): 0\n");
+    char s[100], x, a[20], b[20], op;
+    int n1, n2;
+
+    printf("Enter expressions (END to stop):\n");
+
+    while (1)
+    {
+        scanf(" %[^\n]", s);
+
+        if (strcmp(s, "END") == 0)
+            break;
+
+        if (sscanf(s, "%c = %d %c %d", &x, &n1, &op, &n2) == 4)
+        {
+            if (op == '+')
+                printf("%c = %d\n", x, n1 + n2);
+            else if (op == '-')
+                printf("%c = %d\n", x, n1 - n2);
+            else if (op == '*')
+                printf("%c = %d\n", x, n1 * n2);
+            else if (op == '/')
+                printf("%c = %d\n", x, n1 / n2);
+        }
+        else if (sscanf(s, "%c = %s %c %s", &x, a, &op, b) == 4)
+        {
+            if (op == '*' && strcmp(b, "2") == 0)
+                printf("%c = %s + %s\n", x, a, a);
+
+            else if (op == '+' && strcmp(b, "0") == 0)
+                printf("%c = %s\n", x, a);
+
+            else if (op == '-' && strcmp(b, "0") == 0)
+                printf("%c = %s\n", x, a);
+
+            else if (op == '*' && strcmp(b, "1") == 0)
+                printf("%c = %s\n", x, a);
+
+            else if (op == '*' && strcmp(b, "0") == 0)
+                printf("%c = 0\n", x);
+
+            else if (op == '/' && strcmp(b, "1") == 0)
+                printf("%c = %s\n", x, a);
+
+            else if (op == '-' && strcmp(a, b) == 0)
+                printf("%c = 0\n", x);
+
+            else
+                printf("%s\n", s);
+        }
+    }
+
     return 0;
 }
